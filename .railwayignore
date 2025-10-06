@@ -1,0 +1,53 @@
+# Railway ignore file
+# Files and directories to exclude from Railway deployment
+
+# Development and build files
+*.log
+*.tmp
+*.temp
+dist/
+build/
+node_modules/
+
+# Environment files (except example)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Documentation and scripts (keep only essential ones)
+README.md
+*.sh
+docker-compose.yml
+service-account-key.example.json
+setup-env.sh
+run.sh
+
+# Test files
+*_test.go
+test/
+tests/
+
+# Git
+.git/
+.gitignore
+
+# Backup files
+*.bak
+*.backup

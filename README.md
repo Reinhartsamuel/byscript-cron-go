@@ -1,5 +1,7 @@
 # Go Fiber Firebase Redis App
 
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/your-template-id)
+
 A simple Go Fiber web application with Firebase Firestore and Redis integration.
 
 ## Features
@@ -69,6 +71,39 @@ Update the following in `main.go`:
   })
   ```
 
+## Deployment
+
+### Railway Deployment
+
+This app is configured for easy deployment on [Railway](https://railway.app). Railway automatically:
+
+- Detects the Go project and installs Go 1.21+
+- Builds the application using the provided configuration
+- Sets up environment variables from your Railway project settings
+- Deploys and runs the application
+
+#### Steps to deploy on Railway:
+
+1. **Connect your repository**:
+   - Go to [Railway](https://railway.app)
+   - Click "New Project"
+   - Select "Deploy from GitHub repo"
+   - Connect your repository
+
+2. **Set environment variables**:
+   - In your Railway project, go to "Variables" tab
+   - Add `FIREBASE_SERVICE_ACCOUNT_JSON` with your Firebase service account JSON
+   - (Optional) Add Redis service and Railway will automatically set `REDIS_URL`
+
+3. **Deploy**:
+   - Railway will automatically deploy on every push to your main branch
+   - Or trigger a manual deployment from the Railway dashboard
+
+#### Railway Configuration Files:
+- `railway.json` - Railway deployment configuration
+- `Dockerfile` - Alternative deployment method
+- `.railwayignore` - Files to exclude from deployment
+
 ## Running the Application
 
 ### Option 1: Using the run script (recommended)
@@ -119,6 +154,9 @@ byscript-cron-go/
 ├── run.sh                      # Run script (recommended)
 ├── setup-env.sh                # Environment setup script
 ├── docker-compose.yml          # Redis Docker configuration
+├── railway.json                # Railway deployment configuration
+├── Dockerfile                  # Container deployment configuration
+├── .railwayignore              # Files to exclude from Railway deployment
 ├── .env.example                # Environment variables template
 ├── service-account-key.example.json  # Firebase config template
 └── README.md                   # This file
@@ -143,6 +181,7 @@ byscript-cron-go/
 - The app will continue running even if Redis is unavailable
 - Check that Redis server is running on the specified host and port
 - Use `docker-compose up -d redis` to start Redis with Docker
+- On Railway, add a Redis service and it will automatically set `REDIS_URL`
 - Verify Redis configuration if using authentication
 
 ## License

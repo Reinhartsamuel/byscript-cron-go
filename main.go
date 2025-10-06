@@ -43,8 +43,24 @@ func main() {
 	// Redis endpoint - read/write data
 	app.Get("/redis", handleRedis)
 
+	// Health check endpoint for Railway
+	app.Get("/health", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"status":    "ok",
+			"timestamp": time.Now(),
+			"service":   "Go Fiber Firebase Redis App",
+		})
+	})
+
+	// Get port from environment variable or default to 3000
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+
 	// Start server
-	log.Fatal(app.Listen(":3000"))
+	log.Printf("🚀 Server starting on port %s", port)
+	log.Fatal(app.Listen(":" + port))
 }
 
 func initFirebase() {
@@ -87,9 +103,20 @@ func initFirebase() {
 
 func initRedis() {
 	// Initialize Redis client
+	// Use Railway Redis environment variables if available, otherwise fallback to localhost
+	redisAddr := os.Getenv("REDIS_URL")
+	if redisAddr == "" {
+		redisAddr = "localhost:6379"
+	}
+	
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+	if redisPassword == "" {
+		redisPassword = "" // No password set
+	}
+
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379", // Update with your Redis server address
-		Password: "",               // No password set
+		Addr:     redisAddr,
+		Password: redisPassword,
 		DB:       0,                // Use default DB
 	})
 
@@ -151,7 +178,7 @@ func handleRedis(c *fiber.Ctx) error {
 	if redisClient == nil {
 		return c.Status(503).JSON(fiber.Map{
 			"error": "Redis service unavailable",
-			"message": "Please ensure Redis server is running on localhost:6379",
+			"message": "Please ensure Redis server is configured with REDIS_URL environment variable",
 		})
 	}
 
