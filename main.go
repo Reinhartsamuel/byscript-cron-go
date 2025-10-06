@@ -23,7 +23,7 @@ var (
 func main() {
 	// Initialize Firebase
 	initFirebase()
-	
+
 	// Initialize Redis
 	initRedis()
 
