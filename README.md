@@ -184,6 +184,47 @@ byscript-cron-go/
 - On Railway, add a Redis service and it will automatically set `REDIS_URL`
 - Verify Redis configuration if using authentication
 
+## Railway Troubleshooting
+
+### Common Issues and Solutions
+
+#### 1. "Application failed to respond" Error
+- **Cause**: Application might be crashing on startup or timing out
+- **Solution**:
+  - Check Railway deploy logs for startup errors
+  - Ensure all environment variables are properly set
+  - Verify the application starts successfully on the correct port (8080)
+
+#### 2. Firebase Not Initialized
+- **Cause**: `FIREBASE_SERVICE_ACCOUNT_JSON` environment variable not set
+- **Solution**:
+  - Go to Railway project → Variables tab
+  - Add `FIREBASE_SERVICE_ACCOUNT_JSON` with your complete Firebase service account JSON
+  - Redeploy the application
+
+#### 3. Redis Connection Failed
+- **Cause**: No Redis service added or incorrect configuration
+- **Solution**:
+  - Add Redis service in Railway (New → Database → Redis)
+  - Railway will automatically set `REDIS_URL` environment variable
+  - Or set `REDIS_URL` manually if using external Redis
+
+#### 4. Port Configuration
+- **Cause**: Railway uses port 8080 by default
+- **Solution**: The application automatically uses the `PORT` environment variable provided by Railway
+
+#### 5. Testing Your Deployment
+After deployment, test these endpoints:
+- `GET /` - Should return Hello World with service status
+- `GET /health` - Health check endpoint
+- `GET /firebase` - Will return 503 if Firebase not configured (expected)
+- `GET /redis` - Will return 503 if Redis not configured (expected)
+
+#### 6. Checking Logs
+- Go to Railway project → Deployments → Select deployment → Logs
+- Look for startup messages and any error logs
+- The app logs service initialization status
+
 ## License
 
 MIT License

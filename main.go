@@ -21,19 +21,75 @@ var (
 )
 
 func main() {
+	log.Println("🚀 Starting Go Fiber Firebase Redis App...")
+
 	// Initialize Firebase
 	initFirebase()
 
 	// Initialize Redis
 	initRedis()
 
-	// Create Fiber app
-	app := fiber.New()
+	// Create Fiber app with better configuration
+	app := fiber.New(fiber.Config{
+		AppName:               "Go Fiber Firebase Redis App",
+		DisableStartupMessage: false,
+		ReadTimeout:           10 * time.Second,
+		WriteTimeout:          10 * time.Second,
+	})
+
+	// Add request logging middleware
+	app.Use(func(c *fiber.Ctx) error {
+		start := time.Now()
+		err := c.Next()
+		duration := time.Since(start)
+
+		log.Printf("%s %s %d %v", c.Method(), c.Path(), c.Response().StatusCode(), duration)
+		return err
+	})
+
+	// Add CORS middleware
+	app.Use(func(c *fiber.Ctx) error {
+		c.Set("Access-Control-Allow-Origin", "*")
+		c.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		if c.Method() == "OPTIONS" {
+			return c.SendStatus(fiber.StatusOK)
+		}
+
+		return c.Next()
+	})
 
 	// Basic hello world endpoint
 	app.Get("/", func(c *fiber.Ctx) error {
+		// Check service status
+		services := fiber.Map{
+			"fiber":   "running",
+			"firebase": "not configured",
+			"redis":    "not configured",
+		}
+
+		if firestoreClient != nil {
+			services["firebase"] = "available"
+		}
+
+		if redisClient != nil {
+			services["redis"] = "available"
+		}
+
 		return c.JSON(fiber.Map{
-			"message": "Hello, World!",
+			"message":   "Hello, World!",
+			"service":   "Go Fiber Firebase Redis App",
+			"timestamp": time.Now(),
+			"status":    "running",
+			"version":   "1.0.0",
+			"services":  services,
+			"endpoints": fiber.Map{
+				"/":         "Hello World (this endpoint)",
+				"/health":   "Health check",
+				"/firebase": "Firebase read/write operations",
+				"/redis":    "Redis read/write operations",
+			},
 		})
 	})
 
@@ -56,11 +112,22 @@ func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "3000"
+		log.Printf("ℹ️  PORT environment variable not set, using default: %s", port)
+	} else {
+		log.Printf("ℹ️  Using PORT from environment: %s", port)
 	}
 
 	// Start server
-	log.Printf("🚀 Server starting on port %s", port)
-	log.Fatal(app.Listen(":" + port))
+	log.Printf("✅ Server successfully started on port %s", port)
+	log.Printf("📡 Available endpoints:")
+	log.Printf("   - GET /         - Hello World")
+	log.Printf("   - GET /health   - Health check")
+	log.Printf("   - GET /firebase - Firebase operations")
+	log.Printf("   - GET /redis    - Redis operations")
+
+	if err := app.Listen(":" + port); err != nil {
+		log.Fatalf("❌ Failed to start server: %v", err)
+	}
 }
 
 func initFirebase() {
@@ -108,7 +175,7 @@ func initRedis() {
 	if redisAddr == "" {
 		redisAddr = "localhost:6379"
 	}
-	
+
 	redisPassword := os.Getenv("REDIS_PASSWORD")
 	if redisPassword == "" {
 		redisPassword = "" // No password set
